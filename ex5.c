@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+//TODO: make sure to exit(1) on every failed malloc / calloc
 typedef struct Song {
     char *title;
     char *artist;
@@ -10,11 +10,15 @@ typedef struct Song {
     char *lyrics;
     int streams;
 } Song;
+//linked list of songs
+typedef struct SongsNode {
+    Song song;
+    struct SongsNode *next;
+} SongsNode;
 
 typedef struct Playlist {
     char *name;
-    Song **songs;
-    int songsNum;
+    SongsNode *songs;
 } Playlist;
 
 //linked list of playlists
@@ -23,39 +27,67 @@ typedef struct PlaylistsNode {
     struct PlaylistsNode *next;
 } PlaylistNode;
 
+
+
 //some recommendations for functions, you may implement however you want
+void showPlaylist( PlaylistNode *chosenPlaylist);
+void watchPlaylists(PlaylistNode ** playlists);
 
-void deleteSong() {
-    //todo
-    printf("Song deleted successfully.\n");
-}
-
-
-void playSong(Playlist *plqaylist, int songIndex) {
-    //todo
-}
-
-
-void freeSong(Song *song) {
-    free(song->title);
-    free(song->artist);
-    free(song->lyrics);
-    free(song);
-}
-
-void freePlaylist(Playlist *playlist, int songsSize) {
-    free(playlist->name);
-    for (int i = 0; i < songsSize; i++) {
-        freeSong(playlist->songs[i]);
+void freeSongNode(SongsNode *songsNode) {
+    if (songsNode == NULL) {
+        return;
     }
-    free(playlist->songs);
-    free(playlist);
+    if (songsNode->next == NULL) {
+        free(songsNode->song.title);
+        free(songsNode->song.artist);
+        free(songsNode->song.lyrics);
+        free(songsNode);
+        return;
+    }
+    freeSongNode(songsNode->next);
+    free(songsNode->song.title);
+    free(songsNode->song.artist);
+    free(songsNode->song.lyrics);
+    free(songsNode);
+}
+
+void displaySongs(SongsNode **songs) {
+    SongsNode *currentSong = *songs;
+    int count = 1;
+    while (currentSong != NULL) {
+        printf("%d. Title: %s\n   Artist: %s\n   Released: %d\n   Streams: %d\n"
+            ,count, currentSong->song.title, currentSong->song.artist,
+            currentSong->song.year,currentSong->song.streams);
+        currentSong = currentSong->next;
+    }
+}
+void deleteSong(SongsNode **songs) {
+    int songNum;
+    printf("choose a song to delete, or 0 to quit:");
+    scanf("%d", &songNum);
+    SongsNode *toDelete = *songs;
+    SongsNode *previous = NULL;
+    for (int i = 1; i < songNum; i++) {
+        previous = toDelete;
+        toDelete = toDelete->next;
+    }
+    if (toDelete == NULL) {
+            return;
+        }
+    if (previous == NULL) {
+        *songs = toDelete->next;
+    }
+    else {
+            previous->next = toDelete->next;
+            toDelete->next = NULL;
+        }
+    freeSongNode(toDelete);
 }
 
 char* readLine() {
     //clean the buffer
-    scanf("%*[^\n]");
-    scanf("%*c");
+     // scanf("%*c");
+    scanf("%*[\n\t ]");
     //initial array size
     int size = 10;
     char *buffer = (char *)malloc(size * sizeof(char));
@@ -82,7 +114,6 @@ char* readLine() {
     }
     // end the string
     buffer[i] = '\0';
-
     return buffer;
 }
 
@@ -92,14 +123,170 @@ void printPlaylistsMenu() {
 }
 
 
-void sortPlaylist() {
-    //todo
-    printf("sorted\n");
+void sortByYear(SongsNode ** songs) {
+    if (*songs == NULL) {
+        return;
+    }
+    SongsNode *a = *songs;
+    SongsNode *b = NULL;
+    SongsNode *tmp = NULL;
+    int unSorted = 1;
+    while (unSorted) {
+        unSorted = 0;
+        while (a->next != NULL) {
+            b = a;
+            a = a->next;
+            if (a->song.year > b->song.year) {
+                tmp = b->next;
+                b->next = a;
+                a->next = tmp;
+                unSorted = 1;
+            }
+        }
+    }
+}
+
+void sortByStreamAsc(SongsNode ** songs) {
+    if (*songs == NULL) {
+        return;
+    }
+    SongsNode *a = *songs;
+    SongsNode *b = NULL;
+    SongsNode *tmp = NULL;
+    int unSorted = 1;
+    while (unSorted) {
+        unSorted = 0;
+        while ( a->next != NULL) {
+            b = a;
+            a = a->next;
+            if (a->song.streams > b->song.streams) {
+                tmp = b->next;
+                b->next = a;
+                a->next = tmp;
+                unSorted = 1;
+            }
+        }
+    }
+}
+
+void sortByStreamsDec(SongsNode ** songs) {
+    if (*songs == NULL) {
+        return;
+    }
+    SongsNode *a = *songs;
+    SongsNode *b = NULL;
+    SongsNode *tmp = NULL;
+    int unSorted = 1;
+    while (unSorted) {
+        unSorted = 0;
+        while ( a->next != NULL) {
+            b = a;
+            a = a->next;
+            if ( b->song.streams > a->song.streams) {
+                tmp = b->next;
+                b->next = a;
+                a->next = tmp;
+                unSorted = 1;
+            }
+        }
+    }
+}
+
+void sortAlphabetically(SongsNode ** songs) {
+    if (*songs == NULL) {
+        return;
+    }
+    SongsNode *a = *songs;
+    SongsNode *b = NULL;
+    SongsNode *tmp = NULL;
+    int unSorted = 1;
+    while (unSorted) {
+        unSorted = 0;
+        while (a->next != NULL) {
+            b = a;
+            a = a->next;
+            if ( strcmp(a->song.title, b->song.title) == 1 ) {
+                tmp = b->next;
+                b->next = a;
+                a->next = tmp;
+                unSorted = 1;
+            }
+        }
+    }
+}
+
+void sortPlaylist(SongsNode ** songs) {
+    int sortType;
+    printf("choose:\n"
+           "1. sort by year\n"
+           "2. sort by streams - ascending order\n"
+           "3. sort by streams - descending order\n"
+           "4. sort alphabetically\n");
+    scanf(" %d", &sortType);
+    switch (sortType) {
+        case 1:
+            sortByYear(songs);
+            break;
+        case 2:
+            sortByStreamAsc(songs);
+            break;
+        case 3:
+            sortByStreamsDec(songs);
+            break;
+        case 4:
+            sortAlphabetically(songs);
+            break;
+        default:
+            sortAlphabetically(songs);
+    }
+}
+void printSongsMenu(Playlist* playlist) {
+    printf("playlist %s:\n\t"
+           "1. Show Playlist\n\t"
+           "2. Add Song\n\t"
+           "3. Delete Song\n\t"
+           "4. Sort\n\t"
+           "5. Play\n\t"
+           "6. exit\n\t",
+           playlist->name);
 }
 
 
-void watchPlaylists(PlaylistNode ** playlists) {
-    printf("Choose a playlist;\n");
+void addPlaylist(PlaylistNode ** playlists){
+    PlaylistNode *playlistNode = (PlaylistNode *)malloc(sizeof(PlaylistNode));
+    playlistNode->next = NULL;
+    printf("Enter playlist's name:\n");
+    playlistNode->playlist.name = readLine();
+    if (*playlists == NULL) {
+        *playlists = playlistNode;
+    }
+    else {
+        PlaylistNode *currentNode = *playlists;
+        while (currentNode->next != NULL) {
+            currentNode = currentNode->next;
+        }
+        currentNode->next = playlistNode;
+    }
+}
+
+void freePlaylistNodes(PlaylistNode * playlistNode) {
+    if (playlistNode == NULL) {
+        return;
+    }
+    if (playlistNode->next == NULL) {
+        freeSongNode(playlistNode->playlist.songs);
+        free(playlistNode->playlist.name);
+        free(playlistNode);
+        return;
+    }
+    freePlaylistNodes(playlistNode->next);
+    freeSongNode(playlistNode->playlist.songs);
+    free(playlistNode->playlist.name);
+    free(playlistNode);
+}
+
+void displayPlaylists(PlaylistNode **playlists) {
+    printf("Choose a playlist:\n");
     PlaylistNode *currentPlaylist = *playlists;
     int count = 1;
     while (currentPlaylist != NULL) {
@@ -109,25 +296,146 @@ void watchPlaylists(PlaylistNode ** playlists) {
     printf("\t%d. %s\n", count, "Back to main menu");
 }
 
-void addPlaylist(PlaylistNode ** playlists){
-    PlaylistNode *playlistNode = (PlaylistNode *)malloc(sizeof(PlaylistNode));
-    playlistNode->next = NULL;
-    printf("Enter playlist's name:\n");
-    playlistNode->playlist.name = readLine();
-    if (*playlists == NULL) {
-        *playlists = playlistNode;
-    } else {
-        PlaylistNode *currentNode = *playlists;
-        while (currentNode->next != NULL) {
-            currentNode = currentNode->next;
-        }
-        currentNode->next = playlistNode;
+void removePlaylist(PlaylistNode ** playlists) {
+    int index;
+    displayPlaylists(playlists);
+    scanf(" %d", &index);
+    PlaylistNode *toDelete = *playlists;
+    PlaylistNode *previous = NULL;
+    for (int i = 1; i < index; i++) {
+        previous = toDelete;
+        toDelete = toDelete->next;
+    }
+    // don't delete
+    if (toDelete == NULL) {
+        return;
+    }
+    // delete the first node
+    if (previous == NULL) {
+        *playlists = toDelete->next;
+        freePlaylistNodes(toDelete);
+    }
+    else {
+        previous->next = toDelete->next;
+        toDelete->next = NULL;
+        freePlaylistNodes(toDelete);
     }
 }
 
-void removePlaylist(void) {
-    //todo
+
+void addSong(SongsNode ** songs) {
+    SongsNode *songNode = (SongsNode *)malloc(sizeof(SongsNode));
+    songNode->next = NULL;
+    printf("Enter song's details\nTitle:\n");
+    (*songNode).song.title = readLine();
+    printf("Artist:\n");
+    (*songNode).song.artist = readLine();
+    printf("Year of release:\n");
+    scanf(" %d", &(*songNode).song.year);
+    printf("Lyrics:\n");
+    (*songNode).song.lyrics = readLine();
+    (*songNode).song.streams = 0;
+    if (*songs == NULL) {
+        *songs = songNode;
+    }
+    else {
+        SongsNode *currentNode = *songs;
+        while (currentNode->next != NULL) {
+            currentNode = currentNode->next;
+        }
+        currentNode->next = songNode;
+    }
 }
+// plays a song of the users choice
+void playSong(SongsNode **song, int toPlay) {
+    SongsNode *currentNode = *song;
+    for (int i = 1; i < toPlay; i++) {
+        currentNode = currentNode->next;
+    }
+    printf("Now playing %s:\n$ %s $\n", (*song)->song.title, (*song)->song.lyrics);
+    (*song)->song.streams++;
+}
+
+// plays the entire playlist
+void play(SongsNode ** songs) {
+    int count = 1;
+    SongsNode *currentSong = *songs;
+    while (currentSong != NULL) {
+        playSong(&currentSong, count);
+        count++;
+        currentSong = currentSong->next;
+        printf("\n");
+    }
+}
+
+// prints the menu after choosing a playlist and calls the function the user has chosen
+void playlistMenu(PlaylistNode *chosenPlaylist) {
+    int choice =0;
+    while (choice != 6) {
+        printSongsMenu(&chosenPlaylist->playlist);
+        scanf(" %d", &choice);
+        switch (choice) {
+            case 1:
+                showPlaylist(chosenPlaylist);
+            break;
+            case 2:
+                addSong(&chosenPlaylist->playlist.songs);
+            break;
+            case 3:
+                deleteSong(&chosenPlaylist->playlist.songs);
+            break;
+            case 4:
+                sortPlaylist(&chosenPlaylist->playlist.songs);
+            break;
+            case 5:
+                play(&chosenPlaylist->playlist.songs);
+            break;
+        }
+    }
+}
+
+// prints the songs in the playlist and plays a song if chosen
+void showPlaylist( PlaylistNode *chosenPlaylist) {
+    SongsNode *currentSong = chosenPlaylist->playlist.songs;
+    int count = 1;
+    // print details for each song
+    while (currentSong != NULL) {
+        printf("%d. Title: %s\n\tArtist: %s\n\tReleased: %d\n\tStreams: %d\n"
+            ,count, currentSong->song.title, currentSong->song.artist,
+            currentSong->song.year,currentSong->song.streams);
+        currentSong = currentSong->next;
+    }
+    int toPlay;
+    printf("choose a song to play, or 0 to quit:\n");
+    scanf("%d", &toPlay);
+    if (chosenPlaylist->playlist.songs == NULL) {
+        return;
+    }
+    // the user chose a song to play
+    while (toPlay) {
+        playSong(&chosenPlaylist->playlist.songs, toPlay);
+        printf("choose a song to play, or 0 to quit:\n");
+        scanf("%d", &toPlay);
+    }
+}
+
+void watchPlaylists(PlaylistNode ** playlists) {
+    while (1) {
+        displayPlaylists(playlists);
+        int playlistNum;
+        PlaylistNode *chosenPlaylist = *playlists;
+        scanf("%d", &playlistNum);
+        for (int i = 1; i < playlistNum; i++) {
+            chosenPlaylist = chosenPlaylist->next;
+        }
+        // there are no playlists
+        if (chosenPlaylist == NULL) {
+            return;
+        }
+        playlistMenu(chosenPlaylist);
+    }
+}
+
 
 
 int main() {
@@ -144,7 +452,7 @@ int main() {
                 addPlaylist(&playLists);
                 break;
             case 3:
-                removePlaylist();
+                removePlaylist(&playLists);
         }
     }
     printf("Goodbye!\n");
