@@ -393,5 +393,7 @@ int main() {
             default:
         }
     }
+
+    freePlaylistNodes(playLists);
     printf("Goodbye!\n");
 }
