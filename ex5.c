@@ -194,7 +194,7 @@ void sortPlaylist(SongsNode **songs) {
     printf("sorted\n");
 }
 
-void printSongsMenu(Playlist *playlist) {
+void printSongsMenu() {
     printf("\t1. Show Playlist\n\t"
            "2. Add Song\n\t"
            "3. Delete Song\n\t"
@@ -339,7 +339,7 @@ void play(SongsNode **songs) {
 void playlistMenu(PlaylistNode *chosenPlaylist) {
     int choice = 0;
     while (choice != 6) {
-        printSongsMenu(&chosenPlaylist->playlist);
+        printSongsMenu();
         scanf(" %d", &choice);
         switch (choice) {
             case 1:
