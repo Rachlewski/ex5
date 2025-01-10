@@ -200,7 +200,7 @@ void printSongsMenu() {
            "3. Delete Song\n\t"
            "4. Sort\n\t"
            "5. Play\n\t"
-           "6. exit\n\t");
+           "6. exit\n");
 }
 
 
@@ -331,7 +331,7 @@ void play(SongsNode **songs) {
     int count = 1;
     SongsNode *currentSong = *songs;
     while (currentSong != NULL) {
-        playSong(&currentSong, count);
+        playSong(songs, count);
         count++;
         currentSong = currentSong->next;
         printf("\n");
