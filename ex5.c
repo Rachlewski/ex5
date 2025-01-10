@@ -282,6 +282,7 @@ void  removePlaylist(PlaylistNode **playlists) {
     free(toDelete->playlist.name);
     freeSongNode(toDelete->playlist.songs);
     free(toDelete);
+    printf("Playlist deleted.\n");
 }
 
 
@@ -322,8 +323,8 @@ void playSong(SongsNode **song, int toPlay) {
     for (int i = 1; i < toPlay; i++) {
         currentNode = currentNode->next;
     }
-    printf("Now playing %s:\n$ %s $\n", (*song)->song.title, (*song)->song.lyrics);
-    (*song)->song.streams++;
+    printf("Now playing %s:\n$ %s $\n", currentNode->song.title, currentNode->song.lyrics);
+    currentNode->song.streams++;
 }
 
 // plays the entire playlist
@@ -331,10 +332,10 @@ void play(SongsNode **songs) {
     int count = 1;
     SongsNode *currentSong = *songs;
     while (currentSong != NULL) {
-        playSong(songs, count);
+        printf("Now playing %s:\n$ %s $\n", (currentSong)->song.title, (currentSong)->song.lyrics);
+        (currentSong)->song.streams++;
         count++;
         currentSong = currentSong->next;
-        printf("\n");
     }
 }
 
