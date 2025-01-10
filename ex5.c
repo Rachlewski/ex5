@@ -100,6 +100,7 @@ void deleteSong(SongsNode **songs) {
     }
     // free deleted song
     freeSongNode(toDelete);
+    printf("Song deleted successfully.\n");
 }
 
 char* readLine() {
@@ -151,7 +152,7 @@ int compareSongs(SongsNode *current, int sortType) {
         case BY_STREAMS_DESC:
             return current->song.streams >= current->next->song.streams;
         case BY_NAME:
-            return strcmp(current->song.title, current->next->song.title);
+            return strcmp(current->song.title, current->next->song.title) > 0 ? 1 : 0;
         default:
             return 0;
     }
