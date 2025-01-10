@@ -66,8 +66,9 @@ void displaySongs(SongsNode **songs) {
     int count = 1;
     while (currentSong != NULL) {
         printf("%d. Title: %s\n   Artist: %s\n   Released: %d\n   Streams: %d\n"
-               , count++, currentSong->song.title, currentSong->song.artist,
+               , count, currentSong->song.title, currentSong->song.artist,
                currentSong->song.year, currentSong->song.streams);
+        count++;
         currentSong = currentSong->next;
     }
 }
@@ -194,14 +195,12 @@ void sortPlaylist(SongsNode **songs) {
 }
 
 void printSongsMenu(Playlist *playlist) {
-    printf("playlist %s:\n\t"
-           "1. Show Playlist\n\t"
+    printf("\t1. Show Playlist\n\t"
            "2. Add Song\n\t"
            "3. Delete Song\n\t"
            "4. Sort\n\t"
            "5. Play\n\t"
-           "6. exit\n\t",
-           playlist->name);
+           "6. exit\n\t");
 }
 
 
@@ -372,6 +371,7 @@ void showPlaylist(PlaylistNode *chosenPlaylist) {
         printf("%d. Title: %s\n\tArtist: %s\n\tReleased: %d\n\tStreams: %d\n"
                , count, currentSong->song.title, currentSong->song.artist,
                currentSong->song.year, currentSong->song.streams);
+        count++;
         currentSong = currentSong->next;
     }
     int toPlay;
@@ -402,6 +402,7 @@ void watchPlaylists(PlaylistNode **playlists) {
         if (chosenPlaylist == NULL) {
             return;
         }
+        printf("playlist %s:\n", chosenPlaylist->playlist.name);
         playlistMenu(chosenPlaylist);
     }
 }
