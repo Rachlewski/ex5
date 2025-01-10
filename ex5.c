@@ -283,33 +283,6 @@ void  removePlaylist(PlaylistNode **playlists) {
     freeSongNode(toDelete->playlist.songs);
     free(toDelete);
 }
-// void deleteSong(SongsNode **songs) {
-//     int songNum;
-//     displaySongs(songs);
-//     printf("choose a song to delete, or 0 to quit:\n");
-//     scanf(" %d", &songNum);
-//     SongsNode *toDelete = *songs;
-//     SongsNode *previous = NULL;
-//     // get to the pointer of the song we want to delete
-//     for (int i = 1; i < songNum; i++) {
-//         previous = toDelete;
-//         toDelete = toDelete->next;
-//     }
-//     // no song to delete
-//     if (toDelete == NULL) {
-//         return;
-//     }
-//     // first song
-//     if (previous == NULL) {
-//         *songs = toDelete->next;
-//     }
-//     else {
-//         previous->next = toDelete->next;
-//         toDelete->next = NULL;
-//     }
-//     // free deleted song
-//     freeSongNode(toDelete);
-// }
 
 
 
@@ -346,7 +319,7 @@ void addSong(SongsNode **songs) {
 // plays a song of the users choice
 void playSong(SongsNode **song, int toPlay) {
     SongsNode *currentNode = *song;
-    while (currentNode != NULL) {
+    for (int i = 1; i < toPlay; i++) {
         currentNode = currentNode->next;
     }
     printf("Now playing %s:\n$ %s $\n", (*song)->song.title, (*song)->song.lyrics);
