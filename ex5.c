@@ -77,7 +77,7 @@ void deleteSong(SongsNode **songs) {
     int songNum;
     displaySongs(songs);
     printf("choose a song to delete, or 0 to quit:\n");
-    scanf("%d", &songNum);
+    scanf(" %d", &songNum);
     SongsNode *toDelete = *songs;
     SongsNode *previous = NULL;
     // get to the pointer of the song we want to delete
@@ -152,6 +152,7 @@ int compareSongs(SongsNode *current, int sortType) {
         case BY_NAME:
             return strcmp(current->song.title, current->next->song.title);
         default:
+            return 0;
     }
 }
 
